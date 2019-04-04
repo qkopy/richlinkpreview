@@ -1,4 +1,4 @@
-package com.museon.richlink
+package com.qkopy.richlink
 
 import android.os.AsyncTask
 import android.webkit.URLUtil
@@ -141,7 +141,7 @@ class RichPreview(internal var responseListener: ResponseListener) {
             return null
         }
 
-        override fun onPostExecute(aVoid: Void) {
+        override fun onPostExecute(aVoid: Void?) {
             super.onPostExecute(aVoid)
             responseListener.onData(metaData)
         }

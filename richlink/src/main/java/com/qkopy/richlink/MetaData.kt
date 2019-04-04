@@ -1,4 +1,4 @@
-package com.museon.richlink
+package com.qkopy.richlink
 
 class MetaData {
 

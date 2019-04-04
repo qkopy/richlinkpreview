@@ -1,4 +1,4 @@
-package com.museon.richlink
+package com.qkopy.richlink
 
 import android.text.TextPaint
 import android.text.style.URLSpan

@@ -1,34 +1,30 @@
-package com.museon.richlink
+package com.qkopy.richlink
 
-import android.annotation.TargetApi
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
-import android.text.Spannable
-import android.text.style.URLSpan
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
-import com.squareup.picasso.Picasso
+import com.bumptech.glide.Glide
 
 
-class RichLinkViewTelegram : RelativeLayout {
+class RichLinkViewQkopy : RelativeLayout {
 
     private var view: View? = null
     internal var context: Context
     var metaData: MetaData? = null
         private set
 
-    lateinit var linearLayout: LinearLayout
+    lateinit var relativeLayout: RelativeLayout
     lateinit var imageView: ImageView
+    lateinit var imageViewFavIcon: ImageView
     lateinit var textViewTitle: TextView
     lateinit var textViewDesp: TextView
     lateinit var textViewUrl: TextView
-    lateinit var textViewOriginalUrl: TextView
 
     private var main_url: String? = null
 
@@ -49,44 +45,40 @@ class RichLinkViewTelegram : RelativeLayout {
         this.context = context
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int, defStyleRes: Int) : super(
-        context,
-        attrs,
-        defStyleAttr,
-        defStyleRes
-    ) {
-        this.context = context
-    }
 
     fun initView() {
 
-        if (findLinearLayoutChild() != null) {
-            this.view = findLinearLayoutChild()
+        if (findRelativeLayoutChild() != null) {
+            this.view = findRelativeLayoutChild()
         } else {
             this.view = this
-            View.inflate(context, R.layout.telegram_link_layout, this)
+            View.inflate(context, R.layout.qkopy_link_layout, this)
         }
 
-        linearLayout = findViewById<View>(R.id.rich_link_card) as LinearLayout
+        relativeLayout = findViewById<View>(R.id.rich_link_card) as RelativeLayout
         imageView = findViewById<View>(R.id.rich_link_image) as ImageView
+        imageViewFavIcon = findViewById<View>(R.id.rich_link_favicon) as ImageView
         textViewTitle = findViewById<View>(R.id.rich_link_title) as TextView
         textViewDesp = findViewById<View>(R.id.rich_link_desp) as TextView
         textViewUrl = findViewById<View>(R.id.rich_link_url) as TextView
 
-        textViewOriginalUrl = findViewById<View>(R.id.rich_link_original_url) as TextView
-
-        textViewOriginalUrl.text = main_url
-        removeUnderlines(textViewOriginalUrl.text as Spannable)
 
         if (metaData!!.imageurl == "" || metaData!!.imageurl.isEmpty()) {
             imageView.visibility = View.GONE
         } else {
             imageView.visibility = View.VISIBLE
-            Picasso.get()
-                .load(metaData!!.imageurl)
-                .into(imageView)
+            Glide.with(context).load(metaData!!.imageurl).into(imageView)
         }
+        println("metadata image ${metaData!!.imageurl}")
+
+        if (metaData!!.favicon == "" || metaData!!.favicon.isEmpty()) {
+            imageViewFavIcon.visibility = View.GONE
+        } else {
+            imageViewFavIcon.visibility = View.VISIBLE
+            Glide.with(context).load(metaData!!.favicon).into(imageViewFavIcon)
+        }
+
+        println("metadata image ${metaData!!.favicon}")
 
         if (metaData!!.title.isEmpty() || metaData!!.title == "") {
             textViewTitle.visibility = View.GONE
@@ -108,7 +100,7 @@ class RichLinkViewTelegram : RelativeLayout {
         }
 
 
-        linearLayout.setOnClickListener { view ->
+        relativeLayout.setOnClickListener { view ->
             if (isDefaultClick) {
                 richLinkClicked()
             } else {
@@ -127,9 +119,9 @@ class RichLinkViewTelegram : RelativeLayout {
         context.startActivity(intent)
     }
 
-    protected fun findLinearLayoutChild(): LinearLayout? {
+    protected fun findRelativeLayoutChild(): RelativeLayout? {
         return if (childCount > 0 && getChildAt(0) is LinearLayout) {
-            getChildAt(0) as LinearLayout
+            getChildAt(0) as RelativeLayout
         } else null
     }
 
@@ -147,10 +139,11 @@ class RichLinkViewTelegram : RelativeLayout {
         richLinkListener = richLinkListener1
     }
 
+
     fun setLink(url: String, viewListener: ViewListener) {
         main_url = url
         val richPreview = RichPreview(object : ResponseListener {
-            override fun onData(meta: MetaData) {
+            override fun onData(meta: MetaData?) {
                 metaData = meta
 
                 if (metaData!!.title.isEmpty() || metaData!!.title == "") {
@@ -167,16 +160,5 @@ class RichLinkViewTelegram : RelativeLayout {
         richPreview.getPreview(url)
     }
 
-    private fun removeUnderlines(p_Text: Spannable) {
-        val spans = p_Text.getSpans(0, p_Text.length, URLSpan::class.java)
-
-        for (span in spans) {
-            val start = p_Text.getSpanStart(span)
-            val end = p_Text.getSpanEnd(span)
-            p_Text.removeSpan(span)
-            var span = URLSpanNoUnderline(span.url)
-            p_Text.setSpan(span, start, end, 0)
-        }
-    }
 
 }
