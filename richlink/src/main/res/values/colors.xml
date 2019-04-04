@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="grey_900">#212121</color>
+    <color name="blue_grey_300">#616f76</color>
+    <color name="blue_grey_700">#434f54</color>
+    <color name="bg_card">#e0f9cc</color>
+
+    <color name="skype_start_color">#201db0ed</color>
+    <color name="skype_end_color">#30000000</color>
+    <color name="md_white_1000">#ffffff</color>
+    <color name="md_light_blue_400">#29B6FC</color>
+    <color name="md_light_blue_500">#03A9F4</color>
+
+</resources>
