@@ -19,12 +19,11 @@ class RichLinkViewQkopy : RelativeLayout {
     var metaData: MetaData? = null
         private set
 
-    lateinit var relativeLayout: RelativeLayout
-    lateinit var imageView: ImageView
-    lateinit var imageViewFavIcon: ImageView
-    lateinit var textViewTitle: TextView
-    lateinit var textViewDesp: TextView
-    lateinit var textViewUrl: TextView
+    internal lateinit var linearLayout: LinearLayout
+    internal lateinit var imageView: ImageView
+    internal lateinit var textViewTitle: TextView
+    internal lateinit var textViewDesp: TextView
+    internal var textViewUrl: TextView? = null
 
     private var main_url: String? = null
 
@@ -48,19 +47,20 @@ class RichLinkViewQkopy : RelativeLayout {
 
     fun initView() {
 
-        if (findRelativeLayoutChild() != null) {
-            this.view = findRelativeLayoutChild()
+        if (findLinearLayoutChild() != null) {
+            this.view = findLinearLayoutChild()
         } else {
             this.view = this
             View.inflate(context, R.layout.qkopy_link_layout, this)
         }
 
-        relativeLayout = findViewById<View>(R.id.rich_link_card) as RelativeLayout
+
+
+
+        linearLayout = findViewById<View>(R.id.rich_link_card) as LinearLayout
         imageView = findViewById<View>(R.id.rich_link_image) as ImageView
-        imageViewFavIcon = findViewById<View>(R.id.rich_link_favicon) as ImageView
         textViewTitle = findViewById<View>(R.id.rich_link_title) as TextView
         textViewDesp = findViewById<View>(R.id.rich_link_desp) as TextView
-        textViewUrl = findViewById<View>(R.id.rich_link_url) as TextView
 
 
         if (metaData!!.imageurl == "" || metaData!!.imageurl.isEmpty()) {
@@ -69,16 +69,6 @@ class RichLinkViewQkopy : RelativeLayout {
             imageView.visibility = View.VISIBLE
             Glide.with(context).load(metaData!!.imageurl).into(imageView)
         }
-        println("metadata image ${metaData!!.imageurl}")
-
-        if (metaData!!.favicon == "" || metaData!!.favicon.isEmpty()) {
-            imageViewFavIcon.visibility = View.GONE
-        } else {
-            imageViewFavIcon.visibility = View.VISIBLE
-            Glide.with(context).load(metaData!!.favicon).into(imageViewFavIcon)
-        }
-
-        println("metadata image ${metaData!!.favicon}")
 
         if (metaData!!.title.isEmpty() || metaData!!.title == "") {
             textViewTitle.visibility = View.GONE
@@ -86,12 +76,7 @@ class RichLinkViewQkopy : RelativeLayout {
             textViewTitle.visibility = View.VISIBLE
             textViewTitle.text = metaData!!.title
         }
-        if (metaData!!.url.isEmpty() || metaData!!.url == "") {
-            textViewUrl.visibility = View.GONE
-        } else {
-            textViewUrl.visibility = View.VISIBLE
-            textViewUrl.text = metaData!!.url
-        }
+
         if (metaData!!.description.isEmpty() || metaData!!.description == "") {
             textViewDesp.visibility = View.GONE
         } else {
@@ -100,7 +85,7 @@ class RichLinkViewQkopy : RelativeLayout {
         }
 
 
-        relativeLayout.setOnClickListener { view ->
+        linearLayout.setOnClickListener { view ->
             if (isDefaultClick) {
                 richLinkClicked()
             } else {
@@ -114,14 +99,15 @@ class RichLinkViewQkopy : RelativeLayout {
 
     }
 
+
     private fun richLinkClicked() {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(main_url))
         context.startActivity(intent)
     }
 
-    protected fun findRelativeLayoutChild(): RelativeLayout? {
+    protected fun findLinearLayoutChild(): LinearLayout? {
         return if (childCount > 0 && getChildAt(0) is LinearLayout) {
-            getChildAt(0) as RelativeLayout
+            getChildAt(0) as LinearLayout
         } else null
     }
 
@@ -138,7 +124,6 @@ class RichLinkViewQkopy : RelativeLayout {
     fun setClickListener(richLinkListener1: RichLinkListener) {
         richLinkListener = richLinkListener1
     }
-
 
     fun setLink(url: String, viewListener: ViewListener) {
         main_url = url
