@@ -2,6 +2,7 @@ package com.qkopy.richlink
 
 import android.os.AsyncTask
 import android.webkit.URLUtil
+import com.qkopy.richlink.data.model.MetaData
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.IOException
@@ -10,132 +11,135 @@ import java.net.URISyntaxException
 
 class RichPreview(internal var responseListener: ResponseListener) {
 
-
-    internal var url: String? = null
-
+    internal var mainUrl: String = ""
 
     fun getPreview(url: String) {
-        this.url = url
-        getData().execute()
+        this.mainUrl = url
+        GetData().execute()
     }
 
-    var metaData = MetaData()
+    var metaData = MetaData(0, "", mainUrl, "", "", "", "", "", "")
 
-    private inner class getData : AsyncTask<Void, Void, Void>() {
-
+    private inner class GetData : AsyncTask<Void, Void, Void>() {
 
         override fun doInBackground(vararg params: Void): Void? {
-            var doc: Document? = null
             try {
-                doc = Jsoup.connect(url)
-                    .timeout(30 * 1000)
-                    .get()
+                var doc: Document = Jsoup.connect(mainUrl).timeout(30 * 1000).get()
 
-                val elements = doc!!.getElementsByTag("meta")
+                if (doc != null) {
 
-                // getTitle doc.select("meta[property=og:title]")
-                var title: String? = doc.select("meta[property=og:title]").attr("content")
+                    val elements = doc.getElementsByTag("meta")
 
-                if (title == null || title.isEmpty()) {
-                    title = doc.title()
-                }
-                metaData.title = title!!
+                    // getTitle doc.select("meta[property=og:title]")
+                    var title: String = doc.select("meta[property=og:title]").attr("content") ?: ""
 
-                //getDescription
-                var description: String? = doc.select("meta[name=description]").attr("content")
-                if (description!!.isEmpty() || description == null) {
-                    description = doc.select("meta[name=Description]").attr("content")
-                }
-                if (description!!.isEmpty() || description == null) {
-                    description = doc.select("meta[property=og:description]").attr("content")
-                }
-                if (description!!.isEmpty() || description == null) {
-                    description = ""
-                }
-                metaData.description = description
-
-
-                // getMediaType
-                val mediaTypes = doc.select("meta[name=medium]")
-                var type = ""
-                if (mediaTypes.size > 0) {
-                    val media = mediaTypes.attr("content")
-
-                    type = if (media == "image") "photo" else media
-                } else {
-                    type = doc.select("meta[property=og:type]").attr("content")
-                }
-                metaData.mediatype = type
-
-
-                //getImages
-                val imageElements = doc.select("meta[property=og:image]")
-                if (imageElements.size > 0) {
-                    val image = imageElements.attr("content")
-                    if (!image.isEmpty()) {
-                        metaData.imageurl = resolveURL(url, image)
+                    if (!title.isEmpty()) {
+                        title = doc.title()
                     }
-                }
-                if (metaData.imageurl.isEmpty()) {
-                    var src = doc.select("link[rel=image_src]").attr("href")
-                    if (!src.isEmpty()) {
-                        metaData.imageurl = resolveURL(url, src)
+                    metaData.title = title
+
+                    //getDescription
+                    var description: String? = doc.select("meta[name=description]").attr("content") ?: ""
+                    if (description!!.isEmpty()) {
+                        description = doc.select("meta[name=Description]").attr("content")
+                    }
+                    if (description!!.isEmpty()) {
+                        description = doc.select("meta[property=og:description]").attr("content")
+                    }
+                    if (description!!.isEmpty()) {
+                        description = ""
+                    }
+                    metaData.description = description
+
+
+                    // getMediaType
+                    val mediaTypes = doc.select("meta[name=medium]")
+
+                    val type = if (mediaTypes.size > 0) {
+                        val media = mediaTypes.attr("content")
+
+                        if (media == "image") "photo" else media
                     } else {
-                        src = doc.select("link[rel=apple-touch-icon]").attr("href")
+                        doc.select("meta[property=og:type]").attr("content")
+                    }
+                    metaData.media_type = type
+
+
+                    //getImages
+                    val imageElements = doc.select("meta[property=og:image]")
+                    if (imageElements.size > 0) {
+                        val image = imageElements.attr("content")
+                        if (!image.isEmpty()) {
+                            metaData.image = resolveURL(mainUrl, image)
+                        }
+                    }
+                    if (metaData.image.isEmpty()) {
+                        var src = doc.select("link[rel=image_src]").attr("href")
                         if (!src.isEmpty()) {
-                            metaData.imageurl = resolveURL(url, src)
-                            metaData.favicon = resolveURL(url, src)
+                            metaData.image = resolveURL(mainUrl, src)
                         } else {
-                            src = doc.select("link[rel=icon]").attr("href")
+                            src = doc.select("link[rel=apple-touch-icon]").attr("href")
                             if (!src.isEmpty()) {
-                                metaData.imageurl = resolveURL(url, src)
-                                metaData.favicon = resolveURL(url, src)
+                                metaData.image = resolveURL(mainUrl, src)
+                                metaData.favicon = resolveURL(mainUrl, src)
+                            } else {
+                                src = doc.select("link[rel=icon]").attr("href")
+                                if (!src.isEmpty()) {
+                                    metaData.image = resolveURL(mainUrl, src)
+                                    metaData.favicon = resolveURL(mainUrl, src)
+                                }
                             }
                         }
                     }
-                }
 
-                //Favicon
-                var src = doc.select("link[rel=apple-touch-icon]").attr("href")
-                if (!src.isEmpty()) {
-                    metaData.favicon = resolveURL(url, src)
-                } else {
-                    src = doc.select("link[rel=icon]").attr("href")
+                    //Favicon
+                    var src = doc.select("link[rel=apple-touch-icon]").attr("href")
                     if (!src.isEmpty()) {
-                        metaData.favicon = resolveURL(url, src)
-                    }
-                }
-
-                for (element in elements) {
-                    if (element.hasAttr("property")) {
-                        val str_property = element.attr("property").toString().trim { it <= ' ' }
-                        if (str_property == "og:url") {
-                            metaData.url = element.attr("content").toString()
-                        }
-                        if (str_property == "og:site_name") {
-                            metaData.sitename = element.attr("content").toString()
-                        }
-                    }
-                }
-
-                if (metaData.url == "" || metaData.url.isEmpty()) {
-                    var uri: URI? = null
-                    try {
-                        uri = URI(url!!)
-                    } catch (e: URISyntaxException) {
-                        e.printStackTrace()
-                    }
-
-                    if (url == null) {
-                        metaData.url = url!!
+                        metaData.favicon = resolveURL(mainUrl, src)
                     } else {
-                        metaData.url = uri!!.host
+                        src = doc.select("link[rel=icon]").attr("href")
+                        if (!src.isEmpty()) {
+                            metaData.favicon = resolveURL(mainUrl, src)
+                        }
+                    }
+
+                    if (elements != null) {
+                        for (element in elements) {
+                            if (element.hasAttr("property")) {
+                                val property = element.attr("property").toString().trim { it <= ' ' }
+                                if (property == "og:url") {
+                                    metaData.url = element.attr("content").toString()
+                                }
+                                if (property == "og:site_name") {
+                                    metaData.site = element.attr("content").toString()
+                                }
+                            }
+                        }
+                    }
+
+                    if (metaData.url == "" || metaData.url.isEmpty()) {
+                        var uri: URI? = null
+                        try {
+                            if (uri != null) {
+                                uri = URI(mainUrl)
+                            }
+                        } catch (e: URISyntaxException) {
+                            e.printStackTrace()
+                        }
+
+                        if (mainUrl.isNotEmpty()) {
+                            metaData.url = mainUrl
+                        } else {
+                            metaData.url = uri!!.host
+                        }
+                    } else {
+                        metaData.url = mainUrl
                     }
                 }
 
             } catch (e: IOException) {
                 e.printStackTrace()
-                responseListener.onError(Exception("No Html Received from " + url + " Check your Internet " + e.localizedMessage))
+                responseListener.onError(Exception("No Html Received from " + mainUrl + " Check your Internet " + e.localizedMessage))
             }
 
             return null
@@ -147,20 +151,20 @@ class RichPreview(internal var responseListener: ResponseListener) {
         }
     }
 
-    private fun resolveURL(url: String?, part: String): String {
-        if (URLUtil.isValidUrl(part)) {
-            return part
-        } else {
-            var base_uri: URI? = null
-            try {
-                base_uri = URI(url!!)
-            } catch (e: URISyntaxException) {
-                e.printStackTrace()
+    private fun resolveURL(url: String?, part: String): String = if (URLUtil.isValidUrl(part)) {
+        part
+    } else {
+        var uri: URI? = null
+        try {
+            if (uri != null) {
+                uri = URI(url)
             }
-
-            base_uri = base_uri!!.resolve(part)
-            return base_uri!!.toString()
+        } catch (e: URISyntaxException) {
+            e.printStackTrace()
         }
+
+        uri = uri?.resolve(part)
+        uri.toString()
     }
 
 }

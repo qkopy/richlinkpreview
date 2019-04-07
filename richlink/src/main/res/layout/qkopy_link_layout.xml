@@ -3,7 +3,7 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               xmlns:tools="http://schemas.android.com/tools"
-              android:orientation="horizontal"
+              android:orientation="vertical"
               android:gravity="center"
               android:padding="5dp"
               android:background="@drawable/bg_radius"
@@ -13,8 +13,8 @@
     <ImageView
             android:scaleType="centerCrop"
             android:id="@+id/rich_link_image"
-            android:layout_width="110dp"
-            android:layout_height="90dp" />
+            android:layout_width="match_parent"
+            android:layout_height="190dp" />
 
     <LinearLayout
             android:padding="2dp"
@@ -23,25 +23,26 @@
             android:orientation="vertical">
 
         <TextView
-                android:textStyle="bold"
                 android:maxLines="1"
-                android:ellipsize="end"
-                android:id="@+id/rich_link_title"
-                android:textColor="@color/grey_900"
-                android:padding="2dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:text="Data"/>
-
-        <TextView
-                android:maxLines="2"
                 android:ellipsize="end"
                 android:id="@+id/rich_link_desp"
                 android:textColor="@color/blue_grey_300"
                 android:padding="2dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="Data"/>
+                tools:text=""/>
+
+        <TextView
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:id="@+id/rich_link_title"
+                android:textColor="@color/grey_900"
+                android:padding="2dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text=""/>
 
     </LinearLayout>
+
 </LinearLayout>

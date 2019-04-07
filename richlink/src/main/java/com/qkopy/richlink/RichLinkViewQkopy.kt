@@ -10,22 +10,25 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import com.bumptech.glide.Glide
+import com.qkopy.richlink.data.database.MetaDatabase
+import com.qkopy.richlink.data.model.MetaData
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 
 
-class RichLinkViewQkopy : RelativeLayout {
+open class RichLinkViewQkopy : RelativeLayout {
 
     private var view: View? = null
     internal var context: Context
     var metaData: MetaData? = null
-        private set
 
-    internal lateinit var linearLayout: LinearLayout
-    internal lateinit var imageView: ImageView
-    internal lateinit var textViewTitle: TextView
-    internal lateinit var textViewDesp: TextView
+    private lateinit var linearLayout: LinearLayout
+    private lateinit var imageView: ImageView
+    private lateinit var textViewTitle: TextView
+    private lateinit var textViewDesp: TextView
     internal var textViewUrl: TextView? = null
 
-    private var main_url: String? = null
+    private var mainUrl: String? = null
 
     private var isDefaultClick = true
 
@@ -63,11 +66,11 @@ class RichLinkViewQkopy : RelativeLayout {
         textViewDesp = findViewById<View>(R.id.rich_link_desp) as TextView
 
 
-        if (metaData!!.imageurl == "" || metaData!!.imageurl.isEmpty()) {
+        if (metaData!!.url == "" || metaData!!.url.isEmpty()) {
             imageView.visibility = View.GONE
         } else {
             imageView.visibility = View.VISIBLE
-            Glide.with(context).load(metaData!!.imageurl).into(imageView)
+            Glide.with(context).load(metaData!!.image).into(imageView)
         }
 
         if (metaData!!.title.isEmpty() || metaData!!.title == "") {
@@ -77,11 +80,18 @@ class RichLinkViewQkopy : RelativeLayout {
             textViewTitle.text = metaData!!.title
         }
 
-        if (metaData!!.description.isEmpty() || metaData!!.description == "") {
+//        if (metaData!!.description.isEmpty() || metaData!!.description == "") {
+//            textViewDesp.visibility = View.GONE
+//        } else {
+//            textViewDesp.visibility = View.VISIBLE
+//            textViewDesp.text = metaData!!.description
+//        }
+
+        if (metaData!!.url.isEmpty() || metaData!!.url == "") {
             textViewDesp.visibility = View.GONE
         } else {
             textViewDesp.visibility = View.VISIBLE
-            textViewDesp.text = metaData!!.description
+            textViewDesp.text = metaData!!.url
         }
 
 
@@ -101,11 +111,11 @@ class RichLinkViewQkopy : RelativeLayout {
 
 
     private fun richLinkClicked() {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(main_url))
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mainUrl))
         context.startActivity(intent)
     }
 
-    protected fun findLinearLayoutChild(): LinearLayout? {
+    private fun findLinearLayoutChild(): LinearLayout? {
         return if (childCount > 0 && getChildAt(0) is LinearLayout) {
             getChildAt(0) as LinearLayout
         } else null
@@ -126,23 +136,45 @@ class RichLinkViewQkopy : RelativeLayout {
     }
 
     fun setLink(url: String, viewListener: ViewListener) {
-        main_url = url
-        val richPreview = RichPreview(object : ResponseListener {
-            override fun onData(meta: MetaData?) {
-                metaData = meta
+        mainUrl = url
 
-                if (metaData!!.title.isEmpty() || metaData!!.title == "") {
-                    viewListener.onSuccess(true)
+        if (!mainUrl.isNullOrEmpty()) {
+            val metaDataBase = MetaDatabase.getInstance(context)
+            doAsync {
+                println("meta for mainUrl $url")
+                val meta = metaDataBase.metaDataDao().getMetaDataUrl(url)
+                uiThread {
+                    if (meta != null) {
+                        println("meta from local db")
+                        metaData = meta
+                        initView()
+                    } else {
+                        val richPreview = RichPreview(object : ResponseListener {
+                            override fun onData(meta: MetaData?) {
+                                metaData = meta
+                                if (metaData?.title?.isEmpty() == false || metaData?.title == "") {
+                                    viewListener.onSuccess(true)
+                                    println("meta from local response")
+                                    doAsync {
+                                        println("meta insert to db ${metaData?.url}")
+                                        metaDataBase.metaDataDao().insert(metaData!!)
+                                    }
+                                    initView()
+                                }
+                            }
+
+                            override fun onError(e: Exception) {
+                                viewListener.onError(e)
+                            }
+                        })
+
+                        richPreview.getPreview(url)
+                    }
                 }
-
-                initView()
             }
 
-            override fun onError(e: Exception) {
-                viewListener.onError(e)
-            }
-        })
-        richPreview.getPreview(url)
+        }
+
     }
 
 

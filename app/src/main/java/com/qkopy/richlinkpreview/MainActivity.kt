@@ -12,7 +12,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        richLink.setLink("https://medium.com/zopper-app/zopper-optimizes-android-screen-render-e41ca41ae1b8", object : ViewListener {
+        val youtube = "https://youtu.be/-g7yxxTpF2o"
+        val instagram = "https://www.instagram.com/p/Bt51GkHBBq9/?utm_source=ig_share_sheet&igshid=s2egm9xcr80v"
+
+        richLink.setLink(youtube, object : ViewListener {
             override fun onSuccess(status: Boolean) {
 
             }

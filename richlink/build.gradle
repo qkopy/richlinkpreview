@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 28
@@ -38,6 +39,14 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.11.3'
     implementation "com.github.bumptech.glide:glide:4.9.0"
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
+
+    implementation 'android.arch.persistence.room:runtime:1.1.1'
+    kapt 'android.arch.persistence.room:compiler:1.1.1'
+
+    implementation "com.squareup.retrofit2:converter-moshi:2.5.0"
+
+    implementation "org.jetbrains.anko:anko:0.10.8"
+
 }
 repositories {
     mavenCentral()
