@@ -14,7 +14,7 @@
             android:scaleType="centerCrop"
             android:id="@+id/rich_link_image"
             android:layout_width="match_parent"
-            android:layout_height="190dp" />
+            android:layout_height="180dp" />
 
     <LinearLayout
             android:padding="2dp"
