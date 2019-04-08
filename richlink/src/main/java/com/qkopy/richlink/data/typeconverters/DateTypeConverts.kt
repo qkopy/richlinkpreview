@@ -1,6 +1,6 @@
 package com.qkopy.richlink.data.typeconverters
 
-import android.arch.persistence.room.TypeConverter
+import androidx.room.TypeConverter
 import java.sql.Date
 
 

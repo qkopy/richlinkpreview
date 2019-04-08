@@ -1,5 +1,6 @@
 package com.qkopy.richlink
 
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -9,6 +10,8 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.content.res.ResourcesCompat
 import com.bumptech.glide.Glide
 import com.qkopy.richlink.data.database.MetaDatabase
 import com.qkopy.richlink.data.model.MetaData
@@ -111,8 +114,28 @@ open class RichLinkViewQkopy : RelativeLayout {
 
 
     private fun richLinkClicked() {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mainUrl))
-        context.startActivity(intent)
+        //val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mainUrl))
+        //intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        //context.startActivity(intent)
+        // CustomTabsIntent.Builder used to configure CustomTabsIntent.
+        val builder = CustomTabsIntent.Builder().setShowTitle(true)
+        builder.setToolbarColor(ResourcesCompat.getColor(resources, R.color.blue_grey_300, null))
+        // For adding menu item
+        //builder.addMenuItem("Share", getItem())
+        builder.addDefaultShareMenuItem()
+        // CustomTabsIntent used to launch the URL
+        val customTabsIntent = builder.build()
+        // Open the Custom Tab
+        customTabsIntent.launchUrl(context, Uri.parse(mainUrl))
+    }
+
+    private fun getItem(): PendingIntent {
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.type = "text/plain"
+        shareIntent.putExtra(Intent.EXTRA_TEXT, mainUrl)
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, mainUrl)
+        println("main url $mainUrl")
+        return PendingIntent.getActivity(context, 0, shareIntent, 0)
     }
 
     private fun findLinearLayoutChild(): LinearLayout? {
@@ -135,17 +158,15 @@ open class RichLinkViewQkopy : RelativeLayout {
         richLinkListener = richLinkListener1
     }
 
-    fun setLink(url: String, viewListener: ViewListener) {
+    fun setLink(url: String, context: Context, viewListener: ViewListener) {
+        this.context = context
         mainUrl = url
-
         if (!mainUrl.isNullOrEmpty()) {
             val metaDataBase = MetaDatabase.getInstance(context)
             doAsync {
-                println("meta for mainUrl $url")
                 val meta = metaDataBase.metaDataDao().getMetaDataUrl(url)
                 uiThread {
                     if (meta != null) {
-                        println("meta from local db")
                         metaData = meta
                         initView()
                     } else {
@@ -154,10 +175,9 @@ open class RichLinkViewQkopy : RelativeLayout {
                                 metaData = meta
                                 if (metaData?.title?.isEmpty() == false || metaData?.title == "") {
                                     viewListener.onSuccess(true)
-                                    println("meta from local response")
                                     doAsync {
-                                        println("meta insert to db ${metaData?.url}")
                                         metaDataBase.metaDataDao().insert(metaData!!)
+                                        metaDataBase.metaDataDao().delete()
                                     }
                                     initView()
                                 }
