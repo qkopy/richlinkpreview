@@ -1,7 +1,7 @@
 package com.qkopy.richlinkpreview
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import com.qkopy.richlink.ViewListener
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -14,8 +14,9 @@ class MainActivity : AppCompatActivity() {
 
         val youtube = "https://youtu.be/-g7yxxTpF2o"
         val instagram = "https://www.instagram.com/p/Bt51GkHBBq9/?utm_source=ig_share_sheet&igshid=s2egm9xcr80v"
+        val google = "https://www.google.com"
 
-        richLink.setLink(youtube, object : ViewListener {
+        richLink.setLink(instagram, object : ViewListener {
             override fun onSuccess(status: Boolean) {
 
             }
