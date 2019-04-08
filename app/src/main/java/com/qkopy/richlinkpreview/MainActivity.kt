@@ -15,8 +15,9 @@ class MainActivity : AppCompatActivity() {
         val youtube = "https://youtu.be/-g7yxxTpF2o"
         val instagram = "https://www.instagram.com/p/Bt51GkHBBq9/?utm_source=ig_share_sheet&igshid=s2egm9xcr80v"
         val google = "https://www.google.com"
+        val test = "http://kmccelection.com"
 
-        richLink.setLink(instagram,this, object : ViewListener {
+        richLink.setLink(test, this, object : ViewListener {
             override fun onSuccess(status: Boolean) {
 
             }

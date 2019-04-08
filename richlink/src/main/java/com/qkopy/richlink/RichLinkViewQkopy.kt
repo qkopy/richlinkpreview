@@ -69,19 +69,11 @@ open class RichLinkViewQkopy : RelativeLayout {
         textViewDesp = findViewById<View>(R.id.rich_link_desp) as TextView
 
 
-        if (metaData!!.url == "" || metaData!!.url.isEmpty()) {
-            imageView.visibility = View.GONE
-        } else {
-            imageView.visibility = View.VISIBLE
-            Glide.with(context).load(metaData!!.image).into(imageView)
-        }
+        imageView.visibility = View.VISIBLE
+        Glide.with(context).load(metaData?.image)
+            .placeholder(R.drawable.notfound).error(R.drawable.notfound).into(imageView)
 
-        if (metaData!!.title.isEmpty() || metaData!!.title == "") {
-            textViewTitle.visibility = View.GONE
-        } else {
-            textViewTitle.visibility = View.VISIBLE
-            textViewTitle.text = metaData!!.title
-        }
+        textViewTitle.text = metaData?.title
 
 //        if (metaData!!.description.isEmpty() || metaData!!.description == "") {
 //            textViewDesp.visibility = View.GONE
@@ -90,12 +82,7 @@ open class RichLinkViewQkopy : RelativeLayout {
 //            textViewDesp.text = metaData!!.description
 //        }
 
-        if (metaData!!.url.isEmpty() || metaData!!.url == "") {
-            textViewDesp.visibility = View.GONE
-        } else {
-            textViewDesp.visibility = View.VISIBLE
-            textViewDesp.text = metaData!!.url
-        }
+        textViewDesp.text = metaData?.url ?: mainUrl
 
 
         linearLayout.setOnClickListener { view ->
@@ -103,7 +90,7 @@ open class RichLinkViewQkopy : RelativeLayout {
                 richLinkClicked()
             } else {
                 if (richLinkListener != null) {
-                    richLinkListener!!.onClicked(view, metaData!!)
+                    richLinkListener?.onClicked(view, metaData)
                 } else {
                     richLinkClicked()
                 }
@@ -185,6 +172,7 @@ open class RichLinkViewQkopy : RelativeLayout {
                             }
 
                             override fun onError(e: Exception) {
+                                initView()
                                 viewListener.onError(e)
                             }
                         })

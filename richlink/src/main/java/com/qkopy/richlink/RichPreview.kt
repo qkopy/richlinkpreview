@@ -13,6 +13,8 @@ class RichPreview(internal var responseListener: ResponseListener) {
 
     internal var mainUrl: String = ""
 
+    var isError = false
+    var errorMessage = ""
     fun getPreview(url: String) {
         this.mainUrl = url
         GetData().execute()
@@ -139,7 +141,9 @@ class RichPreview(internal var responseListener: ResponseListener) {
 
             } catch (e: IOException) {
                 e.printStackTrace()
-                responseListener.onError(Exception("No Html Received from " + mainUrl + " Check your Internet " + e.localizedMessage))
+                errorMessage = e.localizedMessage
+                isError = true
+
             }
 
             return null
@@ -147,7 +151,11 @@ class RichPreview(internal var responseListener: ResponseListener) {
 
         override fun onPostExecute(aVoid: Void?) {
             super.onPostExecute(aVoid)
-            responseListener.onData(metaData)
+            if (isError) {
+                responseListener.onError(Exception("No Html Received from $mainUrl Check your Internet $errorMessage"))
+            } else {
+                responseListener.onData(metaData)
+            }
         }
     }
 

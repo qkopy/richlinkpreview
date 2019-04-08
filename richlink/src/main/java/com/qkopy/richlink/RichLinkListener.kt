@@ -4,5 +4,5 @@ import android.view.View
 import com.qkopy.richlink.data.model.MetaData
 
 interface RichLinkListener {
-    fun onClicked(view: View, meta: MetaData)
+    fun onClicked(view: View, meta: MetaData?)
 }
