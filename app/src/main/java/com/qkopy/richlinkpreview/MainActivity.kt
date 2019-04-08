@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
         val instagram = "https://www.instagram.com/p/Bt51GkHBBq9/?utm_source=ig_share_sheet&igshid=s2egm9xcr80v"
         val google = "https://www.google.com"
 
-        richLink.setLink(instagram, object : ViewListener {
+        richLink.setLink(instagram,this, object : ViewListener {
             override fun onSuccess(status: Boolean) {
 
             }

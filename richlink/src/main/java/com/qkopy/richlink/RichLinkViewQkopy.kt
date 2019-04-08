@@ -168,6 +168,7 @@ open class RichLinkViewQkopy : RelativeLayout {
                 uiThread {
                     if (meta != null) {
                         metaData = meta
+                        viewListener.onSuccess(true)
                         initView()
                     } else {
                         val richPreview = RichPreview(object : ResponseListener {
