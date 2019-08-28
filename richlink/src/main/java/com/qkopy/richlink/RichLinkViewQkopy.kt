@@ -33,10 +33,9 @@ open class RichLinkViewQkopy : RelativeLayout {
 
     private var mainUrl: String? = null
 
-    private var isDefaultClick = true
+    private var isDefaultClick = false
 
     private var richLinkListener: RichLinkListener? = null
-
 
     constructor(context: Context) : super(context) {
         this.context = context
@@ -49,7 +48,6 @@ open class RichLinkViewQkopy : RelativeLayout {
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
         this.context = context
     }
-
 
     fun initView() {
 
@@ -98,9 +96,8 @@ open class RichLinkViewQkopy : RelativeLayout {
 
     }
 
-
     private fun richLinkClicked() {
-//        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mainUrl))
+//                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mainUrl))
 //        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
 //        context.startActivity(intent)
 //        // CustomTabsIntent.Builder used to configure CustomTabsIntent.
@@ -114,10 +111,10 @@ open class RichLinkViewQkopy : RelativeLayout {
 //        // Open the Custom Tab
 //        customTabsIntent.launchUrl(context, Uri.parse(mainUrl))
 
+     val builder = CustomTabsIntent.Builder()
+     val customTabsIntent = builder.build()
+     customTabsIntent.launchUrl(context, Uri.parse(mainUrl))
 
-        val builder = CustomTabsIntent.Builder()
-        val customTabsIntent = builder.build()
-        customTabsIntent.launchUrl(context, Uri.parse(mainUrl))
     }
 
     private fun getItem(): PendingIntent {
@@ -139,7 +136,6 @@ open class RichLinkViewQkopy : RelativeLayout {
         this.metaData = metaData
 //        initView()
     }
-
 
     fun setDefaultClickListener(isDefault: Boolean) {
         isDefaultClick = isDefault
