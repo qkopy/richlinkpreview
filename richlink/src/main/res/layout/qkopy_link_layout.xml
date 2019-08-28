@@ -5,14 +5,12 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical"
               android:gravity="center"
-              android:padding="5dp"
               android:background="@drawable/bg_radius"
-              android:id="@+id/rich_link_card"
-              android:layout_margin="5dp">
+              android:id="@+id/linearLayout">
 
     <ImageView
             android:scaleType="centerCrop"
-            android:id="@+id/rich_link_image"
+            android:id="@+id/imageViewBanner"
             android:layout_width="match_parent"
             android:layout_height="180dp" />
 
@@ -25,7 +23,7 @@
         <TextView
                 android:maxLines="1"
                 android:ellipsize="end"
-                android:id="@+id/rich_link_desp"
+                android:id="@+id/textViewDescription"
                 android:textColor="@color/blue_grey_300"
                 android:padding="2dp"
                 android:layout_width="match_parent"
@@ -36,7 +34,7 @@
                 android:textStyle="bold"
                 android:maxLines="2"
                 android:ellipsize="end"
-                android:id="@+id/rich_link_title"
+                android:id="@+id/textViewTitle"
                 android:textColor="@color/grey_900"
                 android:padding="2dp"
                 android:layout_width="match_parent"

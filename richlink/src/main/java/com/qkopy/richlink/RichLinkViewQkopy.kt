@@ -15,21 +15,17 @@ import androidx.core.content.res.ResourcesCompat
 import com.bumptech.glide.Glide
 import com.qkopy.richlink.data.database.MetaDatabase
 import com.qkopy.richlink.data.model.MetaData
+import kotlinx.android.synthetic.main.qkopy_link_layout.view.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 
 
 open class RichLinkViewQkopy : RelativeLayout {
 
-    private var view: View? = null
-    internal var context: Context
+    private var view: View?=null
     var metaData: MetaData? = null
+    internal var context: Context
 
-    private lateinit var linearLayout: LinearLayout
-    private lateinit var imageView: ImageView
-    private lateinit var textViewTitle: TextView
-    private lateinit var textViewDesp: TextView
-    internal var textViewUrl: TextView? = null
 
     private var mainUrl: String? = null
 
@@ -62,27 +58,17 @@ open class RichLinkViewQkopy : RelativeLayout {
 
 
 
-
-        linearLayout = findViewById<View>(R.id.rich_link_card) as LinearLayout
-        imageView = findViewById<View>(R.id.rich_link_image) as ImageView
-        textViewTitle = findViewById<View>(R.id.rich_link_title) as TextView
-        textViewDesp = findViewById<View>(R.id.rich_link_desp) as TextView
-
-
-        imageView.visibility = View.VISIBLE
-        Glide.with(context).load(metaData?.image)
-            .placeholder(R.drawable.notfound).error(R.drawable.notfound).into(imageView)
-
+        imageViewBanner.visibility = View.VISIBLE
+        Glide.with(context).load(metaData?.image).placeholder(R.drawable.notfound).error(R.drawable.notfound).into(imageViewBanner)
         textViewTitle.text = metaData?.title
 
-//        if (metaData!!.description.isEmpty() || metaData!!.description == "") {
-//            textViewDesp.visibility = View.GONE
-//        } else {
-//            textViewDesp.visibility = View.VISIBLE
-//            textViewDesp.text = metaData!!.description
-//        }
-
-        textViewDesp.text = metaData?.url ?: mainUrl
+        if (metaData?.description?.isEmpty() == true || metaData?.description == "") {
+            textViewDescription.visibility = View.GONE
+        } else {
+            textViewDescription.visibility = View.VISIBLE
+            textViewDescription.text = metaData!!.description
+        }
+        textViewDescription.text = metaData?.url ?: mainUrl
 
 
         linearLayout.setOnClickListener { view ->
@@ -101,14 +87,14 @@ open class RichLinkViewQkopy : RelativeLayout {
 
 
     private fun richLinkClicked() {
-        //val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mainUrl))
-        //intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        //context.startActivity(intent)
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mainUrl))
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        context.startActivity(intent)
         // CustomTabsIntent.Builder used to configure CustomTabsIntent.
         val builder = CustomTabsIntent.Builder().setShowTitle(true)
         builder.setToolbarColor(ResourcesCompat.getColor(resources, R.color.blue_grey_300, null))
         // For adding menu item
-        //builder.addMenuItem("Share", getItem())
+        builder.addMenuItem("Share", getItem())
         builder.addDefaultShareMenuItem()
         // CustomTabsIntent used to launch the URL
         val customTabsIntent = builder.build()
@@ -129,20 +115,6 @@ open class RichLinkViewQkopy : RelativeLayout {
         return if (childCount > 0 && getChildAt(0) is LinearLayout) {
             getChildAt(0) as LinearLayout
         } else null
-    }
-
-    fun setLinkFromMeta(metaData: MetaData) {
-        this.metaData = metaData
-        initView()
-    }
-
-
-    fun setDefaultClickListener(isDefault: Boolean) {
-        isDefaultClick = isDefault
-    }
-
-    fun setClickListener(richLinkListener1: RichLinkListener) {
-        richLinkListener = richLinkListener1
     }
 
     fun setLink(url: String, context: Context, viewListener: ViewListener) {

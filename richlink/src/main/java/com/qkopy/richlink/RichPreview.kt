@@ -143,9 +143,7 @@ class RichPreview(internal var responseListener: ResponseListener) {
                 e.printStackTrace()
                 errorMessage = e.localizedMessage
                 isError = true
-
             }
-
             return null
         }
 
