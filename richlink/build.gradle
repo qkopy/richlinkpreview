@@ -47,7 +47,7 @@ dependencies {
 
     implementation "org.jetbrains.anko:anko:0.10.8"
 
-    implementation 'androidx.browser:browser:1.2.0-alpha07'
+    implementation 'com.android.support:customtabs:23.3.0'
 
 }
 repositories {
