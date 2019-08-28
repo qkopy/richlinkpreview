@@ -6,10 +6,8 @@ import android.content.Intent
 import android.net.Uri
 import android.util.AttributeSet
 import android.view.View
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
-import android.widget.TextView
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.res.ResourcesCompat
 import com.bumptech.glide.Glide
@@ -18,7 +16,6 @@ import com.qkopy.richlink.data.model.MetaData
 import kotlinx.android.synthetic.main.qkopy_link_layout.view.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
-
 
 open class RichLinkViewQkopy : RelativeLayout {
 
