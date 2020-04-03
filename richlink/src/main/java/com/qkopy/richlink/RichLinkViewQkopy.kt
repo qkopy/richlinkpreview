@@ -5,13 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.transition.Fade
-import android.transition.Slide
 import android.util.AttributeSet
-import android.view.Gravity
 import android.view.View
 import android.widget.*
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -20,6 +18,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.qkopy.richlink.data.database.MetaDatabase
 import com.qkopy.richlink.data.model.MetaData
+import kotlinx.android.synthetic.main.qkopy_link_layout.view.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 
@@ -32,11 +31,6 @@ open class RichLinkViewQkopy : RelativeLayout {
     internal var context: Context
 
 
-    private lateinit var linearLayout: LinearLayout
-    private lateinit var imageView: ImageView
-    private lateinit var tvTitle: TextView
-    private lateinit var tvDescription: TextView
-    private lateinit var progreeBar: ProgressBar
 
     private var mainUrl: String? = null
 
@@ -65,59 +59,37 @@ open class RichLinkViewQkopy : RelativeLayout {
             View.inflate(context, R.layout.qkopy_link_layout, this)
         }
 
-        linearLayout = findViewById(R.id.linearLayout)
-        imageView = findViewById(R.id.imageViewBanner)
-        tvTitle = findViewById(R.id.textViewTitle)
-        tvDescription = findViewById(R.id.textViewDescription)
-        progreeBar = findViewById(R.id.progress)
 
-        linearLayout.visibility = View.VISIBLE
-        linearLayout.alpha = 0.0f
 
-        imageView.visibility = View.VISIBLE
-        progreeBar.visibility = View.VISIBLE
 
-        Glide.with(context).load(metaData?.image).listener(object : RequestListener<Drawable> {
-            override fun onLoadFailed(
-                e: GlideException?,
-                model: Any?,
-                target: Target<Drawable>?,
-                isFirstResource: Boolean
-            ): Boolean {
 
-                progreeBar.visibility = View.GONE
-                return false
-            }
+        imageViewBanner.visibility = View.VISIBLE
 
-            override fun onResourceReady(
-                resource: Drawable?,
-                model: Any?,
-                target: Target<Drawable>?,
-                dataSource: DataSource?,
-                isFirstResource: Boolean
-            ): Boolean {
+        val circularProgressDrawable = CircularProgressDrawable(context)
+        circularProgressDrawable.centerRadius = 25.0f
+        circularProgressDrawable.start()
 
-                progreeBar.visibility = View.GONE
-                return false
-            }
-        }).diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-            .error(R.drawable.notfound).into(imageView)
+        Glide.with(context).load(metaData?.image)
+            .placeholder(circularProgressDrawable)
+            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+            .error(R.drawable.notfound).into(imageViewBanner)
 
-        tvTitle.text = metaData?.title
+        textViewTitle.text = metaData?.title
 
         if (metaData?.description?.isEmpty() == true || metaData?.description == "") {
-            tvDescription.visibility = View.GONE
+            textViewDescription.visibility = View.GONE
         } else {
-            tvDescription.visibility = View.VISIBLE
-            tvDescription.text = metaData?.description
+            textViewDescription.visibility = View.VISIBLE
+            textViewDescription.text = metaData?.description
         }
-        tvDescription.text = metaData?.url ?: mainUrl
-
-        linearLayout.animate().alpha(1.0f).setDuration(1000)
+        textViewDescription.text = metaData?.url ?: mainUrl
 
 
 
-        linearLayout.setOnClickListener { view ->
+
+
+
+        rootLayout.setOnClickListener { view ->
             if (isDefaultClick) {
                 richLinkClicked()
             } else {
@@ -132,6 +104,7 @@ open class RichLinkViewQkopy : RelativeLayout {
     }
 
     //Default clickListener function
+
     private fun richLinkClicked() {
 
      val builder = CustomTabsIntent.Builder()
@@ -147,14 +120,15 @@ open class RichLinkViewQkopy : RelativeLayout {
         } else null
     }
 
-    fun setLinkFromMeta(metaData: MetaData) {
-        this.metaData = metaData
-//        initView()
-    }
+
+    // Set this to false when using  Custom ClickListener
 
     fun setDefaultClickListener(isDefault: Boolean) {
         isDefaultClick = isDefault
     }
+
+
+    //  Set a Custom ClickListener
 
     fun setClickListener(richLinkListener1: RichLinkListener) {
         richLinkListener = richLinkListener1

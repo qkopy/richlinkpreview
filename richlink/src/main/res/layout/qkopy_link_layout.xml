@@ -1,35 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         xmlns:tools="http://schemas.android.com/tools"
-        android:orientation="vertical"
-        android:gravity="center"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:background="@drawable/bg_radius"
-        android:id="@+id/linearLayout">
+        android:layoutAnimation="@anim/fade_in_controller"
+        android:id="@+id/rootLayout">
 
-    <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="180dp">
+
         <ImageView
                 android:scaleType="centerCrop"
                 android:id="@+id/imageViewBanner"
                 android:layout_width="match_parent"
-                android:layout_height="180dp" />
-        <ProgressBar
-                android:id="@+id/progress"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
+                android:layout_height="180dp"
+                app:layout_constraintTop_toTopOf="parent"
                 />
-    </RelativeLayout>
-
-    <LinearLayout
-            android:padding="2dp"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
 
         <TextView
                 android:layout_marginStart="8dp"
@@ -41,8 +27,9 @@
                 android:padding="2dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text=""
-                android:layout_marginLeft="8dp" />
+                android:layout_marginLeft="8dp"
+                app:layout_constraintTop_toBottomOf="@id/imageViewBanner"
+                />
 
         <TextView
                 android:layout_marginStart="8dp"
@@ -55,9 +42,9 @@
                 android:padding="2dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text=""
-                android:layout_marginLeft="8dp" />
+                android:layout_marginLeft="8dp"
+                app:layout_constraintTop_toBottomOf="@id/textViewDescription"
+                />
 
-    </LinearLayout>
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

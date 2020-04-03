@@ -32,7 +32,7 @@ class RichPreview(internal var responseListener: ResponseListener) {
 
                 if (doc != null) {
 
-                    val elements = doc.getElementsByTag("meta")
+                    val metaTags = doc.getElementsByTag("meta")
 
                     // getTitle doc.select("meta[property=og:title]")
                     var title: String = doc.select("meta[property=og:title]").attr("content") ?: ""
@@ -107,8 +107,8 @@ class RichPreview(internal var responseListener: ResponseListener) {
                         }
                     }
 
-                    if (elements != null) {
-                        for (element in elements) {
+                    if (metaTags != null) {
+                        for (element in metaTags) {
                             if (element.hasAttr("property")) {
                                 val property = element.attr("property").toString().trim { it <= ' ' }
                                 if (property == "og:url") {
