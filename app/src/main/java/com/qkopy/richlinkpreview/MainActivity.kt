@@ -1,6 +1,9 @@
 package com.qkopy.richlinkpreview
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.webkit.URLUtil
 import androidx.appcompat.app.AppCompatActivity
 import com.qkopy.richlink.ViewListener
 import kotlinx.android.synthetic.main.activity_main.*
@@ -17,13 +20,29 @@ class MainActivity : AppCompatActivity() {
         val google = "https://www.google.com"
         val test = "http://kmccelection.com"
 
-        richLink.setLink(test, this, object : ViewListener {
-            override fun onSuccess(status: Boolean) {
+        edittext.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
 
             }
 
-            override fun onError(e: Exception) {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
 
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val ss = s?.split("\\s+")
+                ss?.forEach {
+                    if (URLUtil.isValidUrl(it)){
+                        richLink.setLink(it,this@MainActivity, object : ViewListener {
+                            override fun onSuccess(status: Boolean) {
+
+                            }
+
+                            override fun onError(e: Exception) {
+
+                            }
+                        })
+                    }
+                }
             }
         })
 
