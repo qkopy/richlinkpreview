@@ -5,7 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.transition.Fade
+import android.transition.Slide
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.View
 import android.widget.*
 import androidx.browser.customtabs.CustomTabsIntent
@@ -55,8 +58,6 @@ open class RichLinkViewQkopy : RelativeLayout {
 
     fun initView() {
 
-
-
         if (findLinearLayoutChild() != null) {
             this.view = findLinearLayoutChild()
         } else {
@@ -64,18 +65,18 @@ open class RichLinkViewQkopy : RelativeLayout {
             View.inflate(context, R.layout.qkopy_link_layout, this)
         }
 
-
         linearLayout = findViewById(R.id.linearLayout)
         imageView = findViewById(R.id.imageViewBanner)
         tvTitle = findViewById(R.id.textViewTitle)
         tvDescription = findViewById(R.id.textViewDescription)
         progreeBar = findViewById(R.id.progress)
 
-
-
+        linearLayout.visibility = View.VISIBLE
+        linearLayout.alpha = 0.0f
 
         imageView.visibility = View.VISIBLE
         progreeBar.visibility = View.VISIBLE
+
         Glide.with(context).load(metaData?.image).listener(object : RequestListener<Drawable> {
             override fun onLoadFailed(
                 e: GlideException?,
@@ -83,6 +84,7 @@ open class RichLinkViewQkopy : RelativeLayout {
                 target: Target<Drawable>?,
                 isFirstResource: Boolean
             ): Boolean {
+
                 progreeBar.visibility = View.GONE
                 return false
             }
@@ -94,6 +96,7 @@ open class RichLinkViewQkopy : RelativeLayout {
                 dataSource: DataSource?,
                 isFirstResource: Boolean
             ): Boolean {
+
                 progreeBar.visibility = View.GONE
                 return false
             }
@@ -109,6 +112,9 @@ open class RichLinkViewQkopy : RelativeLayout {
             tvDescription.text = metaData?.description
         }
         tvDescription.text = metaData?.url ?: mainUrl
+
+        linearLayout.animate().alpha(1.0f).setDuration(1000)
+
 
 
         linearLayout.setOnClickListener { view ->

@@ -3,6 +3,8 @@ package com.qkopy.richlink
 import android.os.AsyncTask
 import android.webkit.URLUtil
 import com.qkopy.richlink.data.model.MetaData
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.IOException
@@ -17,14 +19,16 @@ class RichPreview(internal var responseListener: ResponseListener) {
     var errorMessage = ""
     fun getPreview(url: String) {
         this.mainUrl = url
-        GetData().execute()
+        //GetData().execute()
+        getData()
     }
 
     var metaData = MetaData(0, "", mainUrl, "", "", "", "", "", "")
 
-    private inner class GetData : AsyncTask<Void, Void, Void>() {
 
-        override fun doInBackground(vararg params: Void): Void? {
+    private fun getData()
+    {
+        doAsync {
             try {
                 var doc: Document = Jsoup.connect(mainUrl).timeout(30 * 1000).get()
 
@@ -144,15 +148,14 @@ class RichPreview(internal var responseListener: ResponseListener) {
                 errorMessage = e.localizedMessage
                 isError = true
             }
-            return null
-        }
 
-        override fun onPostExecute(aVoid: Void?) {
-            super.onPostExecute(aVoid)
-            if (isError) {
-                responseListener.onError(Exception("No Html Received from $mainUrl Check your Internet $errorMessage"))
-            } else {
-                responseListener.onData(metaData)
+            uiThread {
+
+                if (isError) {
+                    responseListener.onError(Exception("No Html Received from $mainUrl Check your Internet $errorMessage"))
+                } else {
+                    responseListener.onData(metaData)
+                }
             }
         }
     }
