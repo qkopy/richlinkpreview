@@ -131,20 +131,8 @@ open class RichLinkViewQkopy : RelativeLayout {
 
     }
 
+    //Default clickListener function
     private fun richLinkClicked() {
-//                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mainUrl))
-//        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-//        context.startActivity(intent)
-//        // CustomTabsIntent.Builder used to configure CustomTabsIntent.
-//        val builder = CustomTabsIntent.Builder().setShowTitle(true)
-//        builder.setToolbarColor(ResourcesCompat.getColor(resources, R.color.blue_grey_300, null))
-//        // For adding menu item
-//        builder.addMenuItem("Share", getItem())
-//        builder.addDefaultShareMenuItem()
-//        // CustomTabsIntent used to launch the URL
-//        val customTabsIntent = builder.build()
-//        // Open the Custom Tab
-//        customTabsIntent.launchUrl(context, Uri.parse(mainUrl))
 
      val builder = CustomTabsIntent.Builder()
      val customTabsIntent = builder.build()
@@ -152,14 +140,6 @@ open class RichLinkViewQkopy : RelativeLayout {
 
     }
 
-    private fun getItem(): PendingIntent {
-        val shareIntent = Intent(Intent.ACTION_SEND)
-        shareIntent.type = "text/plain"
-        shareIntent.putExtra(Intent.EXTRA_TEXT, mainUrl)
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, mainUrl)
-        println("main url $mainUrl")
-        return PendingIntent.getActivity(context, 0, shareIntent, 0)
-    }
 
     private fun findLinearLayoutChild(): LinearLayout? {
         return if (childCount > 0 && getChildAt(0) is LinearLayout) {
@@ -183,25 +163,33 @@ open class RichLinkViewQkopy : RelativeLayout {
     fun setLink(url: String, context: Context, viewListener: ViewListener) {
         this.context = context
         mainUrl = url
+
         if (!mainUrl.isNullOrEmpty()) {
+
             val metaDataBase = MetaDatabase.getInstance(context)
             doAsync {
                 val meta = metaDataBase.metaDataDao().getMetaDataUrl(url)
                 uiThread {
+
                     if (meta != null) {
+
                         metaData = meta
                         viewListener.onSuccess(true)
                         initView()
+
                     } else {
+
                         val richPreview = RichPreview(object : ResponseListener {
                             override fun onData(meta: MetaData?) {
                                 metaData = meta
                                 if (metaData?.title?.isEmpty() == false || metaData?.title == "") {
+
                                     viewListener.onSuccess(true)
                                     doAsync {
                                         metaDataBase.metaDataDao().insert(metaData!!)
                                         metaDataBase.metaDataDao().delete()
                                     }
+
                                     initView()
                                 }
                             }

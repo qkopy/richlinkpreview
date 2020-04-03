@@ -1,6 +1,5 @@
 package com.qkopy.richlink
 
-import android.os.AsyncTask
 import android.webkit.URLUtil
 import com.qkopy.richlink.data.model.MetaData
 import org.jetbrains.anko.doAsync
@@ -19,18 +18,17 @@ class RichPreview(internal var responseListener: ResponseListener) {
     var errorMessage = ""
     fun getPreview(url: String) {
         this.mainUrl = url
-        //GetData().execute()
-        getData()
+        getHtmlData()
     }
 
     var metaData = MetaData(0, "", mainUrl, "", "", "", "", "", "")
 
 
-    private fun getData()
+    private fun getHtmlData()
     {
         doAsync {
             try {
-                var doc: Document = Jsoup.connect(mainUrl).timeout(30 * 1000).get()
+                val doc: Document = Jsoup.connect(mainUrl).timeout(30 * 1000).get()
 
                 if (doc != null) {
 
