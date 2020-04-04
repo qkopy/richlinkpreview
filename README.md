@@ -46,3 +46,27 @@ richLink.setDefaultClickListener(true)
     }
 })
 ```
+
+#### Adding Library to Project
+
+Step 1. Add the JitPack repository to your build file
+
+Add it in your root build.gradle at the end of repositories:
+
+```
+allprojects {
+   repositories {
+      ...
+      maven { url 'https://jitpack.io' }
+   }
+}
+```
+Step 2. Add the dependency
+
+VERSION: [![](https://jitpack.io/v/qkopy/richlinkpreview.svg)](https://jitpack.io/#qkopy/richlinkpreview)
+
+```
+dependencies {
+    implementation "com.github.qkopy:richlinkpreview:[version]"
+}
+```
