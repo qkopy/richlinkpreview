@@ -64,7 +64,6 @@ open class RichLinkViewQkopy : RelativeLayout {
 
         Glide.with(context).load(metaData?.image)
             .placeholder(circularProgressDrawable)
-
             .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
             .error(R.drawable.notfound).into(imageViewBanner)
 
