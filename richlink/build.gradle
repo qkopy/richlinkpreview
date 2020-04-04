@@ -4,10 +4,8 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
 android {
-    signingConfigs {
-    }
-    compileSdkVersion 28
 
+    compileSdkVersion 28
 
 
     defaultConfig {
@@ -16,7 +14,10 @@ android {
         versionCode 1
         versionName "1.0.0"
 
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles = ['proguard-rules.pro']
+
 
     }
 
@@ -25,6 +26,7 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+
     }
 
 }

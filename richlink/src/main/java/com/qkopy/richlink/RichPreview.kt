@@ -24,6 +24,7 @@ class RichPreview(internal var responseListener: ResponseListener) {
     var metaData = MetaData(0, "", mainUrl, "", "", "", "", "", "")
 
 
+    //getting meta data of the html page
     private fun getHtmlData()
     {
         doAsync {
