@@ -1,6 +1,11 @@
 # RICHLINK PREVIEW
 ## Android RichLink Preview Library
 
+#### Example
+
+![](richlink.gif)
+
+
 
 #### Implementation
 
@@ -27,5 +32,17 @@ richLink.setLink("your-url",this@MainActivity, object : ViewListener {
           override fun onError(e: Exception) {
 
           }
+})
+```
+
+Setting a Custom Click listener
+
+```
+richLink.setDefaultClickListener(true)
+
+ richLink.setClickListener(object : RichLinkListener {
+    override fun onClicked(view: View, meta: MetaData?) {
+       TODO("Not yet implemented")
+    }
 })
 ```
