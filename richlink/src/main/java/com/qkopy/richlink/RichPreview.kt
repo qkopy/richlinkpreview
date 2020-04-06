@@ -38,7 +38,7 @@ class RichPreview(internal var responseListener: ResponseListener) {
                     // getTitle doc.select("meta[property=og:title]")
                     var title: String = doc.select("meta[property=og:title]").attr("content") ?: ""
 
-                    if (!title.isEmpty()) {
+                    if (title.isEmpty()) {
                         title = doc.title()
                     }
                     metaData.title = title
@@ -70,6 +70,7 @@ class RichPreview(internal var responseListener: ResponseListener) {
                     metaData.media_type = type
 
 
+
                     //getImages
                     val imageElements = doc.select("meta[property=og:image]")
                     if (imageElements.size > 0) {
@@ -92,6 +93,12 @@ class RichPreview(internal var responseListener: ResponseListener) {
                                 if (!src.isEmpty()) {
                                     metaData.image = resolveURL(mainUrl, src)
                                     metaData.favicon = resolveURL(mainUrl, src)
+                                } else {
+                                    src = doc.selectFirst("img").absUrl("src")
+                                    if (!src.isEmpty()) {
+                                        metaData.image = resolveURL(mainUrl, src)
+
+                                    }
                                 }
                             }
                         }

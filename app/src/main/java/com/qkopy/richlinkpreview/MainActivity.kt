@@ -3,9 +3,12 @@ package com.qkopy.richlinkpreview
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
 import android.webkit.URLUtil
 import androidx.appcompat.app.AppCompatActivity
+import com.qkopy.richlink.RichLinkListener
 import com.qkopy.richlink.ViewListener
+import com.qkopy.richlink.data.model.MetaData
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -45,6 +48,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+
+
 
 
     }
