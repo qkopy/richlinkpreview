@@ -1,9 +1,11 @@
 package com.qkopy.richlink
 
+
 import android.webkit.URLUtil
 import com.qkopy.richlink.data.model.MetaData
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.uiThread
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.IOException
@@ -24,10 +26,11 @@ class RichPreview(internal var responseListener: ResponseListener) {
     var metaData = MetaData(0, "", mainUrl, "", "", "", "", "", "")
 
 
+
     //getting meta data of the html page
     private fun getHtmlData()
     {
-        doAsync {
+        GlobalScope.launch(Dispatchers.IO) {
             try {
                 val doc: Document = Jsoup.connect(mainUrl).timeout(30 * 1000).get()
 
@@ -155,8 +158,7 @@ class RichPreview(internal var responseListener: ResponseListener) {
                 isError = true
             }
 
-            uiThread {
-
+            GlobalScope.launch(Dispatchers.Main) {
                 if (isError) {
                     responseListener.onError(Exception("No Html Received from $mainUrl Check your Internet $errorMessage"))
                 } else {
