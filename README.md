@@ -70,4 +70,12 @@ richLink.setDefaultClickListener(false)
 })
 ```
 
+#### Optional
+
+Set Link Cache size with 
+
+```
+richLink.setDBCacheLimit(NO_OF_LINKS_TO_CACHE_INT)
+```
+
 
