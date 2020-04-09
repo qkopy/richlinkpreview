@@ -1,12 +1,12 @@
 package com.qkopy.richlink.data.database
 
+import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import android.content.Context
-import com.qkopy.richlink.data.model.MetaData
 import com.qkopy.richlink.data.dao.MetaDataDao
+import com.qkopy.richlink.data.model.MetaData
 import com.qkopy.richlink.data.typeconverters.DateTypeConverts
 
 @Database(

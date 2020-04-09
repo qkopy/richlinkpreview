@@ -1,20 +1,24 @@
 package com.qkopy.richlink
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.AttributeSet
 import android.view.View
-import android.widget.RelativeLayout
+import android.view.animation.AnimationUtils
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import androidx.browser.customtabs.CustomTabsIntent
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.qkopy.richlink.data.database.MetaDatabase
 import com.qkopy.richlink.data.model.MetaData
 import kotlinx.android.synthetic.main.qkopy_link_layout.view.*
-import kotlinx.coroutines.*
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 open class RichLinkViewQkopy : RelativeLayout {
@@ -25,6 +29,7 @@ open class RichLinkViewQkopy : RelativeLayout {
     private var mainUrl: String? = null
     private var isDefaultClick = false
     private var richLinkListener: RichLinkListener? = null
+    private var DB_LIMIT = 50
 
     constructor(context: Context) : super(context) {
         this.context = context
@@ -43,25 +48,35 @@ open class RichLinkViewQkopy : RelativeLayout {
             this.view = this
             View.inflate(context, R.layout.qkopy_link_layout, this)
         }
-        imageViewBanner.visibility = View.VISIBLE
-        val circularProgressDrawable = CircularProgressDrawable(context)
-        circularProgressDrawable.centerRadius = 25.0f
-        circularProgressDrawable.start()
 
-        Glide.with(context).load(metaData?.image)
-            .placeholder(circularProgressDrawable)
+        Glide
+            .with(context).load(metaData?.image)
             .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-            .error(R.drawable.notfound).into(imageViewBanner)
+            .into(object : CustomTarget<Drawable>() {
+                override fun onLoadCleared(placeholder: Drawable?) {
+                    imageViewBanner.visibility = View.GONE
+                }
+
+                override fun onResourceReady(
+                    resource: Drawable,
+                    transition: Transition<in Drawable>?
+                ) {
+                    imageViewBanner.setImageDrawable(resource)
+                    imageViewBanner.alpha = 1.0f
+                    imageViewBanner.visibility = View.VISIBLE
+                    imageViewBanner.animation = AnimationUtils.loadAnimation(context,R.anim.fade_in)
+                    imageViewBanner.animation.start()
+                }
+            })
 
         textViewTitle.text = metaData?.title
-
         if (metaData?.description?.isEmpty() == true || metaData?.description == "") {
             textViewDescription.visibility = View.GONE
         } else {
             textViewDescription.visibility = View.VISIBLE
             textViewDescription.text = metaData?.description
         }
-        textViewDescription.text = metaData?.url ?: mainUrl
+        //textViewDescription.text = metaData?.url ?: mainUrl
 
         rootLayout.setOnClickListener { view ->
             if (isDefaultClick) {
@@ -100,6 +115,11 @@ open class RichLinkViewQkopy : RelativeLayout {
         richLinkListener = richLinkListener1
     }
 
+    //Set No.of DB items to store. default 50
+    fun setDBCacheLimit(limit:Int){
+        this.DB_LIMIT = limit
+    }
+
     // Initialize RichLinkView
      fun  setLink(url: String, context: Context, viewListener: ViewListener) {
         this.context = context
@@ -124,7 +144,7 @@ open class RichLinkViewQkopy : RelativeLayout {
                                     viewListener.onSuccess(true)
                                     GlobalScope.launch(Dispatchers.IO) {
                                         metaDataBase.metaDataDao().insert(metaData!!)
-                                        metaDataBase.metaDataDao().delete()
+                                        metaDataBase.metaDataDao().delete(DB_LIMIT)
                                     }
                                     initView()
                                 }

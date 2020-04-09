@@ -22,10 +22,7 @@ class RichPreview(internal var responseListener: ResponseListener) {
         this.mainUrl = url
         getHtmlData()
     }
-
     var metaData = MetaData(0, "", mainUrl, "", "", "", "", "", "")
-
-
 
     //getting meta data of the html page
     private fun getHtmlData()
@@ -97,7 +94,11 @@ class RichPreview(internal var responseListener: ResponseListener) {
                                     metaData.image = resolveURL(mainUrl, src)
                                     metaData.favicon = resolveURL(mainUrl, src)
                                 } else {
-                                    src = doc.selectFirst("img").absUrl("src")
+                                    src = if (doc.selectFirst("img")!=null){
+                                        doc.selectFirst("img").absUrl("src")
+                                    }else{
+                                        ""
+                                    }
                                     if (!src.isEmpty()) {
                                         metaData.image = resolveURL(mainUrl, src)
 

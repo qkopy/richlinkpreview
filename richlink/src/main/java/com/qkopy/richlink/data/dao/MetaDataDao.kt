@@ -15,7 +15,7 @@ interface MetaDataDao {
     @Query("SELECT DISTINCT * FROM meta_data WHERE url = :url LIMIT 1")
     fun getMetaDataUrl(url: String): MetaData
 
-    @Query("DELETE FROM meta_data where id NOT IN (SELECT id from meta_data ORDER BY id DESC LIMIT 100)")
-    fun delete()
+    @Query("DELETE FROM meta_data where id NOT IN (SELECT id from meta_data ORDER BY id DESC LIMIT :limit)")
+    fun delete(limit:Int)
 
 }

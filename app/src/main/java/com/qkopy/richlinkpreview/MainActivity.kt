@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
         val google = "https://www.google.com"
         val test = "http://kmccelection.com"
 
+        richLink.setDBCacheLimit(1)
         edittext.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
 
