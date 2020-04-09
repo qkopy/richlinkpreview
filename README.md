@@ -7,46 +7,6 @@
 
 
 
-#### Implementation
-
-In XML
-
-```
-<com.qkopy.richlink.RichLinkViewQkopy
-            android:id="@+id/richLink"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@id/edittext"
-            android:layout_marginBottom="10dp"
-          />
-```
-
-In Your Activity
-
-```
-richLink.setLink("your-url",this@MainActivity, object : ViewListener {
-          override fun onSuccess(status: Boolean) {
-
-          }
-
-          override fun onError(e: Exception) {
-
-          }
-})
-```
-
-Setting a Custom Click listener
-
-```
-richLink.setDefaultClickListener(true)
-
- richLink.setClickListener(object : RichLinkListener {
-    override fun onClicked(view: View, meta: MetaData?) {
-       TODO("Not yet implemented")
-    }
-})
-```
-
 #### Adding Library to Project
 
 Step 1. Add the JitPack repository to your build file
@@ -70,3 +30,44 @@ dependencies {
     implementation "com.github.qkopy:richlinkpreview:[version]"
 }
 ```
+
+
+#### Implementation
+
+In XML
+
+```
+<com.qkopy.richlink.RichLinkViewQkopy
+            android:id="@+id/richLink"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+          />
+```
+
+In Your Activity
+
+```
+richLink.setLink("your-url",this@MainActivity, object : ViewListener {
+          override fun onSuccess(status: Boolean) {
+
+          }
+
+          override fun onError(e: Exception) {
+
+          }
+})
+```
+
+Setting a Custom Click listener
+
+```
+richLink.setDefaultClickListener(false)
+
+ richLink.setClickListener(object : RichLinkListener {
+    override fun onClicked(view: View, meta: MetaData?) {
+       TODO("Not yet implemented")
+    }
+})
+```
+
+

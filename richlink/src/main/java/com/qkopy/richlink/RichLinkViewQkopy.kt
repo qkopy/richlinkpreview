@@ -159,8 +159,6 @@ open class RichLinkViewQkopy : RelativeLayout {
                 }
 
             }
-
-
         }
     }
 }

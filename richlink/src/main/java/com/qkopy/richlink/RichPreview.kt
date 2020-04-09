@@ -56,7 +56,6 @@ class RichPreview(internal var responseListener: ResponseListener) {
                     }
                     metaData.description = description
 
-
                     // getMediaType
                     val mediaTypes = doc.select("meta[name=medium]")
 
@@ -68,8 +67,6 @@ class RichPreview(internal var responseListener: ResponseListener) {
                         doc.select("meta[property=og:type]").attr("content")
                     }
                     metaData.media_type = type
-
-
 
                     //getImages
                     val imageElements = doc.select("meta[property=og:image]")
