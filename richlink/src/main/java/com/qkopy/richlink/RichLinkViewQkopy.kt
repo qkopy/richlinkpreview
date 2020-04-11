@@ -1,58 +1,47 @@
 package com.qkopy.richlink
 
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.AttributeSet
 import android.view.View
-import android.widget.ImageView
+import android.view.animation.AnimationUtils
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
-import android.widget.TextView
 import androidx.browser.customtabs.CustomTabsIntent
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.qkopy.richlink.data.database.MetaDatabase
 import com.qkopy.richlink.data.model.MetaData
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.uiThread
+import kotlinx.android.synthetic.main.qkopy_link_layout.view.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 open class RichLinkViewQkopy : RelativeLayout {
 
-
     private var view: View?=null
     var metaData: MetaData? = null
     internal var context: Context
-
-
-    private lateinit var linearLayout: LinearLayout
-    private lateinit var imageView: ImageView
-    private lateinit var tvTitle: TextView
-    private lateinit var tvDescription: TextView
-
     private var mainUrl: String? = null
-
     private var isDefaultClick = false
-
     private var richLinkListener: RichLinkListener? = null
+    private var DB_LIMIT = 50
 
     constructor(context: Context) : super(context) {
         this.context = context
     }
-
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         this.context = context
     }
-
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
         this.context = context
     }
 
     fun initView() {
-
-
-
         if (findLinearLayoutChild() != null) {
             this.view = findLinearLayoutChild()
         } else {
@@ -60,29 +49,36 @@ open class RichLinkViewQkopy : RelativeLayout {
             View.inflate(context, R.layout.qkopy_link_layout, this)
         }
 
+        Glide
+            .with(context).load(metaData?.image)
+            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+            .into(object : CustomTarget<Drawable>() {
+                override fun onLoadCleared(placeholder: Drawable?) {
+                    imageViewBanner.visibility = View.GONE
+                }
 
-        linearLayout = findViewById<View>(R.id.linearLayout) as LinearLayout
-        imageView = findViewById<View>(R.id.imageViewBanner) as ImageView
-        tvTitle = findViewById<View>(R.id.textViewTitle) as TextView
-        tvDescription = findViewById<View>(R.id.textViewDescription) as TextView
+                override fun onResourceReady(
+                    resource: Drawable,
+                    transition: Transition<in Drawable>?
+                ) {
+                    imageViewBanner.setImageDrawable(resource)
+                    imageViewBanner.alpha = 1.0f
+                    imageViewBanner.visibility = View.VISIBLE
+                    imageViewBanner.animation = AnimationUtils.loadAnimation(context,R.anim.fade_in)
+                    imageViewBanner.animation.start()
+                }
+            })
 
-
-
-
-        imageView.visibility = View.VISIBLE
-        Glide.with(context).load(metaData?.image).placeholder(R.drawable.notfound).error(R.drawable.notfound).into(imageView)
-        tvTitle.text = metaData?.title
-
+        textViewTitle.text = metaData?.title
         if (metaData?.description?.isEmpty() == true || metaData?.description == "") {
-            tvDescription.visibility = View.GONE
+            textViewDescription.visibility = View.GONE
         } else {
-            tvDescription.visibility = View.VISIBLE
-            tvDescription.text = metaData?.description
+            textViewDescription.visibility = View.VISIBLE
+            textViewDescription.text = metaData?.description
         }
-        tvDescription.text = metaData?.url ?: mainUrl
+        //textViewDescription.text = metaData?.url ?: mainUrl
 
-
-        linearLayout.setOnClickListener { view ->
+        rootLayout.setOnClickListener { view ->
             if (isDefaultClick) {
                 richLinkClicked()
             } else {
@@ -93,37 +89,14 @@ open class RichLinkViewQkopy : RelativeLayout {
                 }
             }
         }
-
     }
 
+    //Default clickListener function
     private fun richLinkClicked() {
-//                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mainUrl))
-//        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-//        context.startActivity(intent)
-//        // CustomTabsIntent.Builder used to configure CustomTabsIntent.
-//        val builder = CustomTabsIntent.Builder().setShowTitle(true)
-//        builder.setToolbarColor(ResourcesCompat.getColor(resources, R.color.blue_grey_300, null))
-//        // For adding menu item
-//        builder.addMenuItem("Share", getItem())
-//        builder.addDefaultShareMenuItem()
-//        // CustomTabsIntent used to launch the URL
-//        val customTabsIntent = builder.build()
-//        // Open the Custom Tab
-//        customTabsIntent.launchUrl(context, Uri.parse(mainUrl))
-
      val builder = CustomTabsIntent.Builder()
      val customTabsIntent = builder.build()
      customTabsIntent.launchUrl(context, Uri.parse(mainUrl))
 
-    }
-
-    private fun getItem(): PendingIntent {
-        val shareIntent = Intent(Intent.ACTION_SEND)
-        shareIntent.type = "text/plain"
-        shareIntent.putExtra(Intent.EXTRA_TEXT, mainUrl)
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, mainUrl)
-        println("main url $mainUrl")
-        return PendingIntent.getActivity(context, 0, shareIntent, 0)
     }
 
     private fun findLinearLayoutChild(): LinearLayout? {
@@ -132,27 +105,32 @@ open class RichLinkViewQkopy : RelativeLayout {
         } else null
     }
 
-    fun setLinkFromMeta(metaData: MetaData) {
-        this.metaData = metaData
-//        initView()
-    }
-
+    // Set this to false when using  Custom ClickListener
     fun setDefaultClickListener(isDefault: Boolean) {
         isDefaultClick = isDefault
     }
 
+    //  Set a Custom ClickListener
     fun setClickListener(richLinkListener1: RichLinkListener) {
         richLinkListener = richLinkListener1
     }
 
-    fun setLink(url: String, context: Context, viewListener: ViewListener) {
+    //Set No.of DB items to store. default 50
+    fun setDBCacheLimit(limit:Int){
+        this.DB_LIMIT = limit
+    }
+
+    // Initialize RichLinkView
+     fun  setLink(url: String, context: Context, viewListener: ViewListener) {
         this.context = context
         mainUrl = url
+
         if (!mainUrl.isNullOrEmpty()) {
             val metaDataBase = MetaDatabase.getInstance(context)
-            doAsync {
+
+            GlobalScope.launch(Dispatchers.IO){
                 val meta = metaDataBase.metaDataDao().getMetaDataUrl(url)
-                uiThread {
+                GlobalScope.launch(Dispatchers.Main) {
                     if (meta != null) {
                         metaData = meta
                         viewListener.onSuccess(true)
@@ -162,29 +140,25 @@ open class RichLinkViewQkopy : RelativeLayout {
                             override fun onData(meta: MetaData?) {
                                 metaData = meta
                                 if (metaData?.title?.isEmpty() == false || metaData?.title == "") {
+
                                     viewListener.onSuccess(true)
-                                    doAsync {
+                                    GlobalScope.launch(Dispatchers.IO) {
                                         metaDataBase.metaDataDao().insert(metaData!!)
-                                        metaDataBase.metaDataDao().delete()
+                                        metaDataBase.metaDataDao().delete(DB_LIMIT)
                                     }
                                     initView()
                                 }
                             }
-
                             override fun onError(e: Exception) {
                                 initView()
                                 viewListener.onError(e)
                             }
                         })
-
                         richPreview.getPreview(url)
                     }
                 }
+
             }
-
         }
-
     }
-
-
 }

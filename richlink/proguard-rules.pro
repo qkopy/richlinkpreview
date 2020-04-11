@@ -11,7 +11,9 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
-
+-keep class com.qkopy.** { *; }
+-dontwarn com.qkopy.**
+-keep class com.qkopy.richlink.data.database.MetaDatabase {*;}
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
 #-keepattributes SourceFile,LineNumberTable

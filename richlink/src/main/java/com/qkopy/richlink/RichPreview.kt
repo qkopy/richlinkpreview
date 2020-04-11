@@ -1,8 +1,11 @@
 package com.qkopy.richlink
 
-import android.os.AsyncTask
+
 import android.webkit.URLUtil
 import com.qkopy.richlink.data.model.MetaData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.IOException
@@ -17,25 +20,25 @@ class RichPreview(internal var responseListener: ResponseListener) {
     var errorMessage = ""
     fun getPreview(url: String) {
         this.mainUrl = url
-        GetData().execute()
+        getHtmlData()
     }
-
     var metaData = MetaData(0, "", mainUrl, "", "", "", "", "", "")
 
-    private inner class GetData : AsyncTask<Void, Void, Void>() {
-
-        override fun doInBackground(vararg params: Void): Void? {
+    //getting meta data of the html page
+    private fun getHtmlData()
+    {
+        GlobalScope.launch(Dispatchers.IO) {
             try {
-                var doc: Document = Jsoup.connect(mainUrl).timeout(30 * 1000).get()
+                val doc: Document = Jsoup.connect(mainUrl).timeout(30 * 1000).get()
 
                 if (doc != null) {
 
-                    val elements = doc.getElementsByTag("meta")
+                    val metaTags = doc.getElementsByTag("meta")
 
                     // getTitle doc.select("meta[property=og:title]")
                     var title: String = doc.select("meta[property=og:title]").attr("content") ?: ""
 
-                    if (!title.isEmpty()) {
+                    if (title.isEmpty()) {
                         title = doc.title()
                     }
                     metaData.title = title
@@ -53,7 +56,6 @@ class RichPreview(internal var responseListener: ResponseListener) {
                     }
                     metaData.description = description
 
-
                     // getMediaType
                     val mediaTypes = doc.select("meta[name=medium]")
 
@@ -65,7 +67,6 @@ class RichPreview(internal var responseListener: ResponseListener) {
                         doc.select("meta[property=og:type]").attr("content")
                     }
                     metaData.media_type = type
-
 
                     //getImages
                     val imageElements = doc.select("meta[property=og:image]")
@@ -89,6 +90,16 @@ class RichPreview(internal var responseListener: ResponseListener) {
                                 if (!src.isEmpty()) {
                                     metaData.image = resolveURL(mainUrl, src)
                                     metaData.favicon = resolveURL(mainUrl, src)
+                                } else {
+                                    src = if (doc.selectFirst("img")!=null){
+                                        doc.selectFirst("img").absUrl("src")
+                                    }else{
+                                        ""
+                                    }
+                                    if (!src.isEmpty()) {
+                                        metaData.image = resolveURL(mainUrl, src)
+
+                                    }
                                 }
                             }
                         }
@@ -105,8 +116,8 @@ class RichPreview(internal var responseListener: ResponseListener) {
                         }
                     }
 
-                    if (elements != null) {
-                        for (element in elements) {
+                    if (metaTags != null) {
+                        for (element in metaTags) {
                             if (element.hasAttr("property")) {
                                 val property = element.attr("property").toString().trim { it <= ' ' }
                                 if (property == "og:url") {
@@ -144,15 +155,13 @@ class RichPreview(internal var responseListener: ResponseListener) {
                 errorMessage = e.localizedMessage
                 isError = true
             }
-            return null
-        }
 
-        override fun onPostExecute(aVoid: Void?) {
-            super.onPostExecute(aVoid)
-            if (isError) {
-                responseListener.onError(Exception("No Html Received from $mainUrl Check your Internet $errorMessage"))
-            } else {
-                responseListener.onData(metaData)
+            GlobalScope.launch(Dispatchers.Main) {
+                if (isError) {
+                    responseListener.onError(Exception("No Html Received from $mainUrl Check your Internet $errorMessage"))
+                } else {
+                    responseListener.onData(metaData)
+                }
             }
         }
     }
